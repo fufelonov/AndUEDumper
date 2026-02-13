@@ -1,0 +1,51 @@
+name: Build Android Binary
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # 1. Скачиваем настоящий NDK (инструменты разработчика)
+      - name: Setup Android NDK
+        uses: android-actions/setup-ndk@v3
+        with:
+          ndk-version: r25c
+
+      # 2. Ищем папку с Makefile и запускаем сборку
+      - name: Build
+        run: |
+          # Пытаемся найти папку, где лежит Makefile
+          # Если папки AndUEDumper/AndUEDumper существуют - заходим туда
+          if [ -d "AndUEDumper/AndUEDumper" ]; then
+            cd AndUEDumper/AndUEDumper
+          elif [ -d "AndUEDumper" ]; then
+             cd AndUEDumper
+          fi
+          
+          echo "Текущая папка: $(pwd)"
+          ls -la # Показываем файлы для проверки
+
+          # Даем права на выполнение скриптам (на всякий случай)
+          chmod +x *.sh
+
+          # Запускаем очистку и сборку
+          make clean
+          make
+
+      # 3. Сохраняем результат (обычно это папки libs или output)
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AndUEDumper-Android
+          path: |
+            **/libs/**/*.so
+            **/obj/local/**/*.so
+            **/output/*
