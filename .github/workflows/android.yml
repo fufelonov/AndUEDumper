@@ -20,7 +20,7 @@ jobs:
 
       - name: Build
         run: |
-          # Заходим в нужную папку
+          # Заходим в папку
           if [ -d "AndUEDumper/AndUEDumper" ]; then
             cd AndUEDumper/AndUEDumper
           elif [ -d "AndUEDumper" ]; then
@@ -30,11 +30,10 @@ jobs:
           echo "Текущая папка: $(pwd)"
 
           # --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
-          # Мы не используем make, потому что он ищет несуществующий файл.
-          # Мы запускаем сборку напрямую через установленный NDK.
-          # NDK сам найдет файл Android.mk в этой папке.
+          # Добавили APP_STL=c++_static (решает проблему с undefined symbol)
+          # Добавили APP_PLATFORM=android-24 (совместимость)
           
-          ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk
+          ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_STL=c++_static APP_PLATFORM=android-24
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
