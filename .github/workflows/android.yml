@@ -13,7 +13,6 @@ jobs:
         with:
           submodules: recursive
 
-      # --- ИСПРАВЛЕНИЕ ЗДЕСЬ (Заменили на nttld/setup-ndk) ---
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
         with:
@@ -21,7 +20,7 @@ jobs:
 
       - name: Build
         run: |
-          # Ищем папку с Makefile
+          # Заходим в нужную папку
           if [ -d "AndUEDumper/AndUEDumper" ]; then
             cd AndUEDumper/AndUEDumper
           elif [ -d "AndUEDumper" ]; then
@@ -29,14 +28,13 @@ jobs:
           fi
           
           echo "Текущая папка: $(pwd)"
-          ls -la # Проверка файлов
 
-          # Даем права скриптам
-          chmod +x *.sh
-
-          # Запускаем сборку
-          make clean
-          make
+          # --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
+          # Мы не используем make, потому что он ищет несуществующий файл.
+          # Мы запускаем сборку напрямую через установленный NDK.
+          # NDK сам найдет файл Android.mk в этой папке.
+          
+          ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
