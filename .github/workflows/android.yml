@@ -13,17 +13,15 @@ jobs:
         with:
           submodules: recursive
 
-      # 1. Скачиваем настоящий NDK (инструменты разработчика)
+      # --- ИСПРАВЛЕНИЕ ЗДЕСЬ (Заменили на nttld/setup-ndk) ---
       - name: Setup Android NDK
-        uses: android-actions/setup-ndk@v3
+        uses: nttld/setup-ndk@v1
         with:
           ndk-version: r25c
 
-      # 2. Ищем папку с Makefile и запускаем сборку
       - name: Build
         run: |
-          # Пытаемся найти папку, где лежит Makefile
-          # Если папки AndUEDumper/AndUEDumper существуют - заходим туда
+          # Ищем папку с Makefile
           if [ -d "AndUEDumper/AndUEDumper" ]; then
             cd AndUEDumper/AndUEDumper
           elif [ -d "AndUEDumper" ]; then
@@ -31,21 +29,19 @@ jobs:
           fi
           
           echo "Текущая папка: $(pwd)"
-          ls -la # Показываем файлы для проверки
+          ls -la # Проверка файлов
 
-          # Даем права на выполнение скриптам (на всякий случай)
+          # Даем права скриптам
           chmod +x *.sh
 
-          # Запускаем очистку и сборку
+          # Запускаем сборку
           make clean
           make
 
-      # 3. Сохраняем результат (обычно это папки libs или output)
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: AndUEDumper-Android
           path: |
             **/libs/**/*.so
-            **/obj/local/**/*.so
             **/output/*
